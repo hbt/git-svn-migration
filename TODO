@@ -1,0 +1,29 @@
+- clone project
+- list externals
+- sort externals (submodules vs symlinks)
+- define submodules file 
+- checkout if necessary
+- define symlinks (relative paths)
+
+
+list authors
+svn log --xml | grep author | sort -u | perl -pe 's/.>(.?)<./$1 = /'
+
+example authors file
+htanfous = Hassen Ben Tanfous <htanfous@sylsft.com>
+jhanley = Jason Hanley <jhanley@sylsft.com>
+ypogue = Yusef Pogue <ypogue@sylsft.com>
+
+clone with authors and no metadata
+git-svn clone --authors-file authors.txt --no-metadata http://svn.sylsft.com/projects/bcpa
+
+
+list all externals
+ svn propget svn:externals -R
+
+clone externals as symlinks
+ /tmp/e/git-svn-clone-externals/git-svn-clone-externals
+
+
+git submodule add hassen@hbtlabs.com:/home/hassen/git/autojump s
+
