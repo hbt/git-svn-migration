@@ -16,6 +16,8 @@ require_once (SF_ROOT_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR .
 define('REPOS_DIR', $argv[1]);
 define('REPO_NAME', $argv[2]);
 
+include dirname(__FILE__) . '/commons.php';
+
 main();
 
 function main()
@@ -25,7 +27,7 @@ function main()
 
 function fixSubmodules()
 {
-    $externalsFilename = REPOS_DIR . REPO_NAME. '.externals_edit_me.txt';
+    $externalsFilename = REPOS_DIR . REPO_NAME. EXTERNALS_POSTFIX;
     if (!file_exists($externalsFilename))
     {
         echo "\n\nFile $externalsFilename not found. check step1";
@@ -59,7 +61,6 @@ function createSubmodules($yaml)
                 'php',
                 $step1Script, 
                 REPOS_DIR,
-                'authors.txt',
                 $submod['url'],
                 $submod['name']
             );

@@ -2,8 +2,7 @@
 
 # Usage:
 # php step1_clone_repo.php repository_dump_directory/ authors_filename svn_url repo_name
-# e.g php batch/step1_clone_repo.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ authors.txt http://svn.sylsft.com/projects/uwo/ctms/ ctms
-# NOTE: authors file must be named authors.txt
+# e.g php batch/step1_clone_repo.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ http://svn.sylsft.com/projects/uwo/ctms/ ctms
 
 
 define('SF_ROOT_DIR', realpath(dirname(__FILE__) . '/../'));
@@ -13,52 +12,58 @@ define('SF_DEBUG', true);
 
 require_once (SF_ROOT_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . SF_APP . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php');
 
-$repositoryDirectoryDumpFullPath = $argv[1];
-# TODO: get rid of this argument
-$authorsFilename = $argv[2];
-$svnURL = $argv[3];
-$repositoryName = $argv[4];
+define('REPOS_DIR', $argv[1]);
+define('SVN_URL', $argv[2]);
+define('REPO_NAME', $argv[3]);
 
-main($repositoryDirectoryDumpFullPath, $authorsFilename, $svnURL, $repositoryName);
+include dirname(__FILE__) . '/commons.php';
 
-function main($repositoryDirectoryDumpFullPath, $authorsFilename, $svnURL, $repositoryName)
+main();
+
+function main()
 {
-    // TODO(hbt): change this
-//    $repositoryName = $repositoryName . time();
-    convertSVNtoGit($repositoryDirectoryDumpFullPath, $authorsFilename, $svnURL, $repositoryName);
-    // PART 2 -- get externals
-    generateSubmodulesSymlinksFile($repositoryDirectoryDumpFullPath, $repositoryName, $svnURL);
+    convertSVNtoGit();
+    generateSubmodulesSymlinksFile();
 }
 
-function convertSVNtoGit($reposDir, $authorsFilename, $url, $repoName)
+function convertSVNtoGit()
 {
     // svn authors matching
-    $authorsFile = $reposDir . $authorsFilename;
+    $authorsFile = REPOS_DIR . 'authors.txt';
     if (!file_exists($authorsFile))
     {
-        echo "\n\nauthors file required. check batch/authors as an example";
+        echo "\n\nauthors file required. check batch/authors as an example. File $authorsFile not found";
         exit;
     }
 
-    chdir($reposDir);
+    chdir(REPOS_DIR);
 
-    if (file_exists($reposDir . $repoName))
+    $repoPath = REPOS_DIR . REPO_NAME;
+    if (file_exists($repoPath))
     {
-        echo "\n\ngit repo already exists at " . $reposDir . $repoName;
+        echo "\n\ngit repo already exists at " . $repoPath;
     }
     else
     {
         // checkout svn project into git repo
-        $cmd = "git-svn clone --authors-file $authorsFile --no-metadata $url $repoName";
+        $cmd = implode(" ", array(
+            'git-svn',
+            'clone',
+            '--authors-file',
+            $authorsFile,
+            '--no-metadata',
+            SVN_URL,
+            REPO_NAME
+        ));
 
         echo shell_exec($cmd);
     }
 }
 
-function generateSubmodulesSymlinksFile($reposDir, $repoName, $url)
+function generateSubmodulesSymlinksFile()
 {
-    $svnRepoName = $repoName . '_svn';
-    $svnRepoPath = $reposDir . $svnRepoName;
+    $svnRepoName = REPO_NAME . TMP_SVN_POSTFIX;
+    $svnRepoPath = REPOS_DIR . $svnRepoName;
 
     if (file_exists($svnRepoPath))
     {
@@ -66,22 +71,22 @@ function generateSubmodulesSymlinksFile($reposDir, $repoName, $url)
     }
     else
     {
-        checkoutSVNRepository($svnRepoName, $url);
+        checkoutSVNRepository();
     }
 
     chdir($svnRepoPath);
     $xmlStringExternals = dumpExternals($svnRepoPath);
 
     $arrayExternals = convertXMLtoArray($xmlStringExternals);
-    $organizedArray = sortExternals($arrayExternals, $url);
+    $organizedArray = sortExternals($arrayExternals);
 
+    chdir(REPOS_DIR);
     if(count($organizedArray['submodules']) || count($organizedArray['symlinks']))
     {
-        $filename = $reposDir . "$repoName.externals_edit_me.txt";
+        $filename = REPOS_DIR . REPO_NAME . EXTERNALS_POSTFIX;
         file_put_contents($filename, sfYaml::dump($organizedArray));
     }
 
-    chdir($reposDir);
 }
 
 /**
@@ -89,7 +94,7 @@ function generateSubmodulesSymlinksFile($reposDir, $repoName, $url)
  * @param type array of externals
  * @return type array of organized externals
  */
-function sortExternals($array, $url)
+function sortExternals($array)
 {
     $ret = array(
         'submodules' => array(),
@@ -116,7 +121,7 @@ function sortExternals($array, $url)
             }
 
             // symlinks relative to the repo
-            if (startsWith($extUrl, $url, false))
+            if (startsWith($extUrl, SVN_URL, false))
             {
                 $ret['symlinks'][$path] = $external;
             }
@@ -178,7 +183,6 @@ function convertXMLtoArray($string)
 
 /**
  * dump externals as xml
- * @param type $svnRepoPath string full path to svn repository
  * @return type  XML string
  */
 function dumpExternals()
@@ -189,10 +193,15 @@ function dumpExternals()
     return $ret;
 }
 
-function checkoutSVNRepository($svnRepoName, $url)
+function checkoutSVNRepository()
 {
-    # checkout svn project
-    $cmd = "svn co $url $svnRepoName";
+    chdir(REPOS_DIR);
+    $cmd = implode(' ', array(
+        'svn',
+        'co',
+        SVN_URL,
+        REPO_NAME . TMP_SVN_POSTFIX
+    ));
 
     echo shell_exec($cmd);
 }
