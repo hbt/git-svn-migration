@@ -169,11 +169,22 @@ function convertXMLtoArray($string)
             $extData = explode(' ', $ext);
             $name = $extData[0];
             $extUrl = $extData[1];
+            
+            $extUrl = trim($extUrl);
+            // remove trailing / from url
+            if($extUrl[strlen($extUrl)-1] === '/')
+            {
+                $extUrl = substr($extUrl, 0, strlen($extUrl)-1);
+            }
+
 
             $ret[$path . "/" . $name] = array(
                 'path' => $path,
+                // name of the external repo within the project
                 'name' => $name,
-                'url' => $extUrl
+                'url' => $extUrl,
+                // real name of repo
+                'real_name' => substr($extUrl, strrpos($extUrl, '/')+1)
             );
         }
     }

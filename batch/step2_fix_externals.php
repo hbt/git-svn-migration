@@ -1,8 +1,11 @@
 <?php
 
 # Usage:
-# php step1_clone_repo.php repository_dump_directory/ repo_name
-# e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ ctms
+# php step1_clone_repo.php repository_dump_directory/ repo_name remote_submodule_path
+# e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ ctms /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/
+# e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ bcpa /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/
+
+# e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ ctms git@github.com:hbt/
 
 
 
@@ -15,6 +18,7 @@ require_once (SF_ROOT_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR .
 
 define('REPOS_DIR', $argv[1]);
 define('REPO_NAME', $argv[2]);
+define('GIT_REPO_PATH', $argv[3]);
 
 include dirname(__FILE__) . '/commons.php';
 
@@ -37,6 +41,7 @@ function fixSubmodules()
     $yaml = sfYaml::load(file_get_contents($externalsFilename));
 
     createSubmodules($yaml);
+    generateGitSubmodulesFile($yaml);
 }
 
 function createSubmodules($yaml)
@@ -47,10 +52,10 @@ function createSubmodules($yaml)
     foreach ($yaml['submodules'] as $submod)
     {
         // skip if repo already exists
-        $repoPath = REPOS_DIR . $submod['name'];
+        $repoPath = REPOS_DIR . $submod['real_name'];
         if(file_exists($repoPath))
         {
-            echo "\n\n skipping $repoPath";
+            echo "\n\n skipping because repository already exists at $repoPath";
         }
         else
         {
@@ -62,7 +67,7 @@ function createSubmodules($yaml)
                 $step1Script, 
                 REPOS_DIR,
                 $submod['url'],
-                $submod['name']
+                $submod['real_name']
             );
 
             $cmd = implode(" ", $params);
@@ -72,9 +77,16 @@ function createSubmodules($yaml)
 }
 
 // create .gitmodules file for the repo
-function generateGitSubmodulesFile()
+function generateGitSubmodulesFile($yaml)
 {
     // loop through submodules
+    chdir(REPOS_DIR . REPO_NAME);
+
+    foreach($yaml['submodules'] as $submod)
+    {
+        $cmd = 'git submodule add  ' . GIT_REPO_PATH . $submod['real_name'] . ' ' . $submod['path'] . '/' . $submod['name'];
+        echo shell_exec($cmd);
+    }
 }
 
 // create .svn_externals_links file
