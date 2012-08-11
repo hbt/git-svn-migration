@@ -1,2 +1,4 @@
-/cache/
-/log/
+/cache/*
+!cache/.ignore
+/log/*
+!log/.ignore
