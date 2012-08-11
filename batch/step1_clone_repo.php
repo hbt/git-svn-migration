@@ -2,6 +2,8 @@
 
 # Usage:
 # php step1_clone_repo.php repository_dump_directory/ authors_filename svn_url repo_name
+# e.g php batch/step1_clone_repo.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ authors.txt http://svn.sylsft.com/projects/uwo/ctms/ ctms
+
 
 define('SF_ROOT_DIR', realpath(dirname(__FILE__) . '/../'));
 define('SF_APP', 'frontend');
@@ -36,6 +38,8 @@ function convertSVNtoGit($reposDir, $authorsFilename, $url, $repoName)
         exit;
     }
 
+    chdir($reposDir);
+
     if (file_exists($reposDir . $repoName))
     {
         echo "git repo already exists at " . $reposDir . $repoName;
@@ -43,7 +47,6 @@ function convertSVNtoGit($reposDir, $authorsFilename, $url, $repoName)
     else
     {
         // checkout svn project into git repo
-        chdir($reposDir);
         $cmd = "git-svn clone --authors-file $authorsFile --no-metadata $url $repoName";
 
         echo shell_exec($cmd);
@@ -53,16 +56,17 @@ function convertSVNtoGit($reposDir, $authorsFilename, $url, $repoName)
 function generateSubmodulesSymlinksFile($reposDir, $repoName, $url)
 {
     $svnRepoName = $repoName . '_svn';
-    if (file_exists($reposDir . $svnRepoName))
+    $svnRepoPath = $reposDir . $svnRepoName;
+
+    if (file_exists($svnRepoPath))
     {
-        echo "svn repo already exists at " . $reposDir . $svnRepoName;
+        echo "svn repo already exists at " . $svnRepoPath;
     }
     else
     {
         checkoutSVNRepository($svnRepoName, $url);
     }
 
-    $svnRepoPath = $reposDir . $svnRepoName;
     chdir($svnRepoPath);
     $xmlStringExternals = dumpExternals($svnRepoPath);
 
