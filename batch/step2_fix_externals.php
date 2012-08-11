@@ -4,7 +4,6 @@
 # php step1_clone_repo.php repository_dump_directory/ repo_name remote_submodule_path
 # e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ ctms /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/
 # e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ bcpa /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/
-
 # e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ ctms git@github.com:hbt/
 
 
@@ -27,21 +26,21 @@ main();
 function main()
 {
     fixSubmodules();
+    fixSymlinks();
 }
 
 function fixSubmodules()
 {
-    $externalsFilename = REPOS_DIR . REPO_NAME. EXTERNALS_POSTFIX;
-    if (!file_exists($externalsFilename))
-    {
-        echo "\n\nFile $externalsFilename not found. check step1";
-        exit;
-    }
-
-    $yaml = sfYaml::load(file_get_contents($externalsFilename));
+    $yaml = readYAMLFile();
 
     createSubmodules($yaml);
     generateGitSubmodulesFile($yaml);
+}
+
+function fixSymlinks()
+{
+    $yaml = readYAMLFile();
+    generateSymlinksFile($yaml);
 }
 
 function createSubmodules($yaml)
@@ -53,7 +52,7 @@ function createSubmodules($yaml)
     {
         // skip if repo already exists
         $repoPath = REPOS_DIR . $submod['real_name'];
-        if(file_exists($repoPath))
+        if (file_exists($repoPath))
         {
             echo "\n\n skipping because repository already exists at $repoPath";
         }
@@ -64,7 +63,7 @@ function createSubmodules($yaml)
 
             $params = array(
                 'php',
-                $step1Script, 
+                $step1Script,
                 REPOS_DIR,
                 $submod['url'],
                 $submod['real_name']
@@ -82,7 +81,7 @@ function generateGitSubmodulesFile($yaml)
     // loop through submodules
     chdir(REPOS_DIR . REPO_NAME);
 
-    foreach($yaml['submodules'] as $submod)
+    foreach ($yaml['submodules'] as $submod)
     {
         $cmd = 'git submodule add  ' . GIT_REPO_PATH . $submod['real_name'] . ' ' . $submod['path'] . '/' . $submod['name'];
         echo shell_exec($cmd);
@@ -90,14 +89,38 @@ function generateGitSubmodulesFile($yaml)
 }
 
 // create .svn_externals_links file
-function generateSymlinksFile()
+function generateSymlinksFile($yaml)
 {
+    chdir(REPOS_DIR . REPO_NAME);
+    foreach ($yaml['symlinks'] as $sym)
+    {
+        $link = $sym['path'] . '/' . $sym['name'];
+        $target = $sym['ln_src'];
 
+        if (file_exists($link))
+            unlink($link);
+
+        symlink($target, $link);
+    }
 }
 
 function copyExternalsInfo()
 {
 
+}
+
+function readYAMLFile()
+{
+    $externalsFilename = REPOS_DIR . REPO_NAME . EXTERNALS_POSTFIX;
+    if (!file_exists($externalsFilename))
+    {
+        echo "\n\nFile $externalsFilename not found. check step1";
+        exit;
+    }
+
+    $yaml = sfYaml::load(file_get_contents($externalsFilename));
+
+    return $yaml;
 }
 
 ?>

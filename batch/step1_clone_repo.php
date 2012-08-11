@@ -117,12 +117,14 @@ function sortExternals($array)
             // Note: needless to know which one is the haystack/needle. We will loop again and get them anyway
             if (startsWith($extUrl, $extUrl2, false))
             {
+                $external['ln_src'] = get_ln_src($external2, $external);
                 $ret['symlinks'][$path] = $external;
             }
 
             // symlinks relative to the repo
             if (startsWith($extUrl, SVN_URL, false))
             {
+                $external['ln_src'] = get_ln_src(SVN_URL, $external, true);
                 $ret['symlinks'][$path] = $external;
             }
         }
@@ -143,6 +145,25 @@ function sortExternals($array)
         }
     }
 
+    return $ret;
+}
+
+// determine symlink relative path
+function get_ln_src($src, $dest, $replaceOnly = false)
+{
+    // count nb / 
+    $level = substr_count($dest['path'], '/')+1;
+    
+    $ret = str_repeat('../', $level);
+    if($replaceOnly)
+    {
+        $ret .= str_ireplace($src, '', $dest['url']);
+    }
+    else
+    {
+        $ret .= $src['path'] . '/' . $src['name'] . str_ireplace($src['url'], '', $dest['url']);
+    }
+   
     return $ret;
 }
 
