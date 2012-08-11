@@ -3,6 +3,7 @@
 # Usage:
 # php step1_clone_repo.php repository_dump_directory/ authors_filename svn_url repo_name
 # e.g php batch/step1_clone_repo.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ authors.txt http://svn.sylsft.com/projects/uwo/ctms/ ctms
+# NOTE: authors file must be named authors.txt
 
 
 define('SF_ROOT_DIR', realpath(dirname(__FILE__) . '/../'));
@@ -13,6 +14,7 @@ define('SF_DEBUG', true);
 require_once (SF_ROOT_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . SF_APP . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php');
 
 $repositoryDirectoryDumpFullPath = $argv[1];
+# TODO: get rid of this argument
 $authorsFilename = $argv[2];
 $svnURL = $argv[3];
 $repositoryName = $argv[4];
@@ -34,7 +36,7 @@ function convertSVNtoGit($reposDir, $authorsFilename, $url, $repoName)
     $authorsFile = $reposDir . $authorsFilename;
     if (!file_exists($authorsFile))
     {
-        echo "authors file required. check batch/authors as an example";
+        echo "\n\nauthors file required. check batch/authors as an example";
         exit;
     }
 
@@ -42,7 +44,7 @@ function convertSVNtoGit($reposDir, $authorsFilename, $url, $repoName)
 
     if (file_exists($reposDir . $repoName))
     {
-        echo "git repo already exists at " . $reposDir . $repoName;
+        echo "\n\ngit repo already exists at " . $reposDir . $repoName;
     }
     else
     {
@@ -60,7 +62,7 @@ function generateSubmodulesSymlinksFile($reposDir, $repoName, $url)
 
     if (file_exists($svnRepoPath))
     {
-        echo "svn repo already exists at " . $svnRepoPath;
+        echo "\n\nsvn repo already exists at " . $svnRepoPath;
     }
     else
     {
@@ -73,8 +75,11 @@ function generateSubmodulesSymlinksFile($reposDir, $repoName, $url)
     $arrayExternals = convertXMLtoArray($xmlStringExternals);
     $organizedArray = sortExternals($arrayExternals, $url);
 
-    $filename = $reposDir . "$repoName.externals_edit_me.txt";
-    file_put_contents($filename, sfYaml::dump($organizedArray));
+    if(count($organizedArray['submodules']) || count($organizedArray['symlinks']))
+    {
+        $filename = $reposDir . "$repoName.externals_edit_me.txt";
+        file_put_contents($filename, sfYaml::dump($organizedArray));
+    }
 
     chdir($reposDir);
 }
