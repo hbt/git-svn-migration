@@ -88,12 +88,12 @@ pake_copy(getcwd().'/package.xml.tmpl', getcwd().'/package.xml');
 $finder = pakeFinder::type('file')->ignore_version_control()->relative();
 $xml_classes = '';
 $dirs = array('lib' => 'php', 'data' => 'data');
-foreach ($dirs as $dir => $role)
+foreach ($dirs as $reposDir => $role)
 {
-  $class_files = $finder->in($dir);
+  $class_files = $finder->in($reposDir);
   foreach ($class_files as $file)
   {
-    $xml_classes .= '<file role="'.$role.'" baseinstalldir="symfony" install-as="'.$file.'" name="'.$dir.'/'.$file.'" />'."\n";
+    $xml_classes .= '<file role="'.$role.'" baseinstalldir="symfony" install-as="'.$file.'" name="'.$reposDir.'/'.$file.'" />'."\n";
   }
 }
 
