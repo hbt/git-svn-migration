@@ -103,6 +103,7 @@ function generateSymlinksFile($yaml)
         if (file_exists($link))
             unlink($link);
 
+        echo "\n\nsymlink $target $link\n";
         symlink($target, $link);
         
         shell_exec('git add ' . $link);
