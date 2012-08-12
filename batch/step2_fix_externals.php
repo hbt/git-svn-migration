@@ -104,8 +104,10 @@ function generateSymlinksFile($yaml)
             unlink($link);
 
         echo "\n\nsymlink $target $link\n";
-        symlink($target, $link);
+        chdir(REPOS_DIR . REPO_NAME . '/' . $sym['path']);
+        symlink($target, $sym['name']);
         
+        chdir(REPOS_DIR . REPO_NAME);
         shell_exec('git add ' . $link);
     }
 
