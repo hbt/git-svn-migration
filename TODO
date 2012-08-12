@@ -1,3 +1,10 @@
+- fix ssh public hbtlabs
+- fix ignore + empty dirs automatically
+- documentation
+
+
+
+
 - clone project
 - list externals
 - sort externals (submodules vs symlinks)
@@ -27,3 +34,4 @@ clone externals as symlinks
 
 git submodule add hassen@hbtlabs.com:/home/hassen/git/autojump s
 
+php batch/step2_fix_externals.php /home/hassen/ssi/svn/ buymystuff hassen@hbtlabs.com:/home/hassen/ssi/svn/
