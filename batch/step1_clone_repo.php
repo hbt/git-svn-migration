@@ -18,18 +18,21 @@ define('REPO_NAME', $argv[3]);
 
 include dirname(__FILE__) . '/commons.php';
 
+define('SVN_REPO_DIR', REPOS_DIR . REPO_NAME . TMP_SVN_POSTFIX);
 main();
 
 function main()
 {
     convertSVNtoGit();
     generateSubmodulesSymlinksFile();
+    fixIgnores();
+    fixEmptyDirectories();
 }
 
 function convertSVNtoGit()
 {
     // svn authors matching
-    $authorsFile = REPOS_DIR . 'authors.txt';
+    $authorsFile = dirname(__FILE__) . '/authors.txt';
     if (!file_exists($authorsFile))
     {
         echo "\n\nauthors file required. check batch/authors as an example. File $authorsFile not found";
@@ -62,20 +65,17 @@ function convertSVNtoGit()
 
 function generateSubmodulesSymlinksFile()
 {
-    $svnRepoName = REPO_NAME . TMP_SVN_POSTFIX;
-    $svnRepoPath = REPOS_DIR . $svnRepoName;
-
-    if (file_exists($svnRepoPath))
+    if (file_exists(SVN_REPO_DIR))
     {
-        echo "\n\nsvn repo already exists at " . $svnRepoPath;
+        echo "\n\nsvn repo already exists at " . SVN_REPO_DIR;
     }
     else
     {
         checkoutSVNRepository();
     }
 
-    chdir($svnRepoPath);
-    $xmlStringExternals = dumpExternals($svnRepoPath);
+    chdir(SVN_REPO_DIR);
+    $xmlStringExternals = dumpExternals(SVN_REPO_DIR);
 
     $arrayExternals = convertXMLtoArray($xmlStringExternals);
     $organizedArray = sortExternals($arrayExternals);
@@ -86,7 +86,91 @@ function generateSubmodulesSymlinksFile()
         $filename = REPOS_DIR . REPO_NAME . EXTERNALS_POSTFIX;
         file_put_contents($filename, sfYaml::dump($organizedArray));
     }
+}
 
+/**
+ * Note(hbt): empty directories are not added to git
+ * Some projects expect directories to exist.
+
+ * create an empty hidden file
+ */
+function fixEmptyDirectories()
+{
+    chdir(REPOS_DIR . REPO_NAME);
+    $cmd = 'find . -name .git -a -type d -prune -o -type d -empty -print';
+
+    $dirs = shell_exec($cmd);
+    $dirs = explode("\n", $dirs);
+
+    $ret = array();
+    foreach ($dirs as $dir)
+    {
+        if (!trim($dir))
+            continue;
+        $dir = substr($dir, 1);
+        $notempty = $dir . '/.notempty';
+        touch(REPOS_DIR . REPO_NAME . $notempty);
+
+        // force an exception for .notempty file if the content of the directory is ignored
+        $ret[] = '!' . $notempty;
+        shell_exec('git add ' . substr($notempty, 1));
+    }
+
+    $gitignorefilename = REPOS_DIR . REPO_NAME . '/.gitignore';
+    if (!file_exists($gitignorefilename))
+        touch($gitignorefilename);
+
+    $ret = implode("\n", $ret);
+    $ret = file_get_contents($gitignorefilename) . "\n" . $ret;
+    file_put_contents($gitignorefilename, $ret);
+
+    shell_exec('git add ' . $gitignorefilename);
+    shell_exec('git commit -m "(svn import) -- fixing empty directories"');
+}
+
+/**
+ * imports svn ignore statements into .gitignore
+ */
+function fixIgnores()
+{
+    // get ignores from svn repo
+    chdir(SVN_REPO_DIR);
+    $cmd = 'svn propget svn:ignore -R --xml';
+    $strxml = shell_exec($cmd);
+
+    $xml = simplexml_load_string($strxml);
+    $ret = array();
+    foreach ($xml->target as $target)
+    {
+        $path = (string) $target['path'];
+        $strlines = (string) $target->property;
+        
+        $arrlines = explode("\n", $strlines);
+        
+        foreach($arrlines as $line) 
+        {
+            if(!trim($line))
+                continue;
+            
+            $ignoreline = '';
+            if($path)
+            {
+                $ignoreline .= $path . '/';
+            }
+            
+            $ignoreline .= $line;
+            
+            $ret[] = $ignoreline;
+        }
+    }
+
+    $strignore = implode("\n", $ret);
+    file_put_contents(REPOS_DIR . REPO_NAME . '/.gitignore', $strignore);
+
+    chdir(REPOS_DIR . REPO_NAME);
+
+    shell_exec('git add .gitignore');
+    shell_exec('git commit .gitignore -m "(svn import) -- updates ignore list"');
 }
 
 /**
