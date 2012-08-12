@@ -113,7 +113,7 @@ function fixEmptyDirectories()
 
         // force an exception for .notempty file if the content of the directory is ignored
         $ret[] = '!' . $notempty;
-        echo shell_exec('git add ' . substr($notempty, 1));
+        echo shell_exec('git add -f ' . substr($notempty, 1));
     }
 
     $gitignorefilename = REPOS_DIR . REPO_NAME . '/.gitignore';
@@ -125,7 +125,7 @@ function fixEmptyDirectories()
     file_put_contents($gitignorefilename, $ret);
 
     echo shell_exec('git add ' . $gitignorefilename);
-    echo shell_exec('git commit -m "(svn import) -- fixes empty directories"');
+    echo shell_exec('git commit -m "(svn import) -- updates ignore list"');
 }
 
 /**
@@ -170,7 +170,6 @@ function fixIgnores()
     chdir(REPOS_DIR . REPO_NAME);
 
     echo shell_exec('git add .gitignore');
-    echo shell_exec('git commit .gitignore -m "(svn import) -- updates ignore list"');
 }
 
 /**

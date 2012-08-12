@@ -13,12 +13,12 @@ Migrates an subversion repository into a Git repository
 Usage:
 
 
-1. review + define authors in batch/authors.txt
+* review + define authors in batch/authors.txt
 
 use `svn log --xml | grep author | sort -u | perl -pe 's/.>(.?)<./$1 = /'` to list authors from your SVN repository
 
 
-2. execute step1
+* execute step1
 `php step1_clone_repo.php repository_dump_directory/ authors_filename svn_url repo_name`
 
 
@@ -32,7 +32,7 @@ After step 1 is executed, a file is created in your dump_path_dir listing all su
 
 
 
-3. execute step 2
+* execute step 2
 `e.g php batch/step2_fix_externals.php /home/X/dump_path_dir ctms git@github.com:hbt/`
 
 
@@ -42,6 +42,9 @@ Step 2 will use the file and create the submodules + symlinks
 
 Delete the residue directories e.g __tmp_svn
 
+
+
+if it doesn't fully migrate, review authors.txt file. Will stop if an author is not found
 
 
 Run migration once
