@@ -86,6 +86,9 @@ function generateGitSubmodulesFile($yaml)
         $cmd = 'git submodule add  ' . GIT_REPO_PATH . $submod['real_name'] . ' ' . $submod['path'] . '/' . $submod['name'];
         echo shell_exec($cmd);
     }
+
+    echo shell_exec('git add .gitmodules');
+    echo shell_exec('git commit -m "(svn import) -- adds .gitmodules"');
 }
 
 // create .svn_externals_links file
@@ -101,7 +104,11 @@ function generateSymlinksFile($yaml)
             unlink($link);
 
         symlink($target, $link);
+        
+        shell_exec('git add ' . $link);
     }
+
+    echo shell_exec('git commit -m "(svn import) -- adds symlinks"');
 }
 
 function copyExternalsInfo()
