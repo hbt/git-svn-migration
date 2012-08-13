@@ -108,7 +108,7 @@ function generateSymlinksFile($yaml)
         symlink($target, $sym['name']);
         
         chdir(REPOS_DIR . REPO_NAME);
-        shell_exec('git add ' . $link);
+        shell_exec('git add -f ' . $link);
     }
 
     echo shell_exec('git commit -m "(svn import) -- adds symlinks"');
