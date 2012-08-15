@@ -4,6 +4,11 @@
 # php step1_clone_repo.php repository_dump_directory/ authors_filename svn_url repo_name
 # e.g php batch/step1_clone_repo.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ http://svn.sylsft.com/projects/uwo/ctms/ ctms
 
+/**
+ * import SVN project into git
+ * generate list of submodules + symlinks based on externals
+ */
+
 
 define('SF_ROOT_DIR', realpath(dirname(__FILE__) . '/../'));
 define('SF_APP', 'frontend');

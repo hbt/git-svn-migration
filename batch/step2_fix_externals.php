@@ -7,6 +7,10 @@
 # e.g php batch/step2_fix_externals.php /media/b91eeaef-82c7-4ae6-9713-44ce65eb25e6/home/hassen/web_dld/ssi/ ctms git@github.com:hbt/
 
 
+/**
+ * convert externals using file as submodules or symbolic links
+ */
+
 
 define('SF_ROOT_DIR', realpath(dirname(__FILE__) . '/../'));
 define('SF_APP', 'frontend');
@@ -112,25 +116,6 @@ function generateSymlinksFile($yaml)
     }
 
     echo shell_exec('git commit -m "(svn import) -- adds symlinks"');
-}
-
-function copyExternalsInfo()
-{
-
-}
-
-function readYAMLFile()
-{
-    $externalsFilename = REPOS_DIR . REPO_NAME . EXTERNALS_POSTFIX;
-    if (!file_exists($externalsFilename))
-    {
-        echo "\n\nFile $externalsFilename not found. check step1";
-        exit;
-    }
-
-    $yaml = sfYaml::load(file_get_contents($externalsFilename));
-
-    return $yaml;
 }
 
 ?>
