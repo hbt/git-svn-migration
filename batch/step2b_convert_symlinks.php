@@ -54,6 +54,7 @@ function convertSymlinks($yaml)
     chdir($repoPath);
 
     echo shell_exec('git commit -m "(svn import) -- converts symlinks into regular files"');
+    echo shell_exec('git push origin master');
 }
 
 ?>

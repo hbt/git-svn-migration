@@ -93,6 +93,7 @@ function generateGitSubmodulesFile($yaml)
 
     echo shell_exec('git add .gitmodules');
     echo shell_exec('git commit -m "(svn import) -- adds .gitmodules"');
+    echo shell_exec('git push origin master');
 }
 
 // create .svn_externals_links file
@@ -116,6 +117,7 @@ function generateSymlinksFile($yaml)
     }
 
     echo shell_exec('git commit -m "(svn import) -- adds symlinks"');
+    echo shell_exec('git push origin master');
 }
 
 ?>

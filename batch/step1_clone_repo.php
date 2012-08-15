@@ -32,6 +32,7 @@ function main()
     generateSubmodulesSymlinksFile();
     fixIgnores();
     fixEmptyDirectories();
+    pushToRemote();
 }
 
 function convertSVNtoGit()
@@ -324,6 +325,41 @@ function checkoutSVNRepository()
     ));
 
     echo shell_exec($cmd);
+}
+
+function pushToRemote()
+{
+    // read config.yml file for bitbucket upload
+    $yaml = sfYaml::load(file_get_contents(dirname(__FILE__) . '/config.yml'));
+
+    // extract variables
+    $user = $yaml['user'];
+    if(!$user)
+        return;
+
+    $passwd = $yaml['passwd'];
+    $repoName = REPO_NAME;
+
+    $owner = '';
+    if($yaml['owner'])
+    {
+        $owner = '--data owner=' . $yaml['owner'];
+    }
+
+    // create bitbucket repository
+    $repoPath = REPOS_DIR . REPO_NAME;
+    chdir($repoPath);
+    $cmd = "curl --request POST --user $user:$passwd https://api.bitbucket.org/1.0/repositories/ --data name=$repoName --data scm=git $owner --data is_private=True";
+    echo shell_exec($cmd);
+
+    // add remote and push
+    $owner = $yaml['owner'];
+    if(!$owner)
+        $owner = $yaml['user'];
+
+    $cmd = "git remote add origin ssh://git@bitbucket.org/$owner/$repoName.git";
+    echo shell_exec($cmd);
+    echo shell_exec('git push -u origin master');
 }
 
 function startsWith($haystack, $needle, $case=true)
