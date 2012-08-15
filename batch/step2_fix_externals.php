@@ -87,7 +87,7 @@ function generateGitSubmodulesFile($yaml)
 
     foreach ($yaml['submodules'] as $submod)
     {
-        $cmd = 'git submodule add -f  ' . GIT_REPO_PATH . $submod['real_name'] . ' ' . $submod['path'] . '/' . $submod['name'];
+        $cmd = 'git submodule add -f  ' . GIT_REPO_PATH . strtolower($submod['real_name']) . ' ' . $submod['path'] . '/' . $submod['name'];
         echo shell_exec($cmd);
     }
 

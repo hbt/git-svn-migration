@@ -346,18 +346,19 @@ function pushToRemote()
         $owner = '--data owner=' . $yaml['owner'];
     }
 
+    $ownerName = $yaml['owner'];
+    if(!$owner)
+        $ownerName = $yaml['user'];
+
     // create bitbucket repository
     $repoPath = REPOS_DIR . REPO_NAME;
     chdir($repoPath);
+    $cmd = "curl --request DELETE --user $user:$passwd https://api.bitbucket.org/1.0/repositories/$ownerName/$repoName";
     $cmd = "curl --request POST --user $user:$passwd https://api.bitbucket.org/1.0/repositories/ --data name=$repoName --data scm=git $owner --data is_private=True";
     echo shell_exec($cmd);
 
     // add remote and push
-    $owner = $yaml['owner'];
-    if(!$owner)
-        $owner = $yaml['user'];
-
-    $cmd = "git remote add origin ssh://git@bitbucket.org/$owner/$repoName.git";
+    $cmd = "git remote add origin ssh://git@bitbucket.org/$ownerName/$repoName.git";
     echo shell_exec($cmd);
     echo shell_exec('git push -u origin master');
 }
