@@ -354,11 +354,15 @@ function pushToRemote()
     $repoPath = REPOS_DIR . REPO_NAME;
     chdir($repoPath);
     $cmd = "curl --request DELETE --user $user:$passwd https://api.bitbucket.org/1.0/repositories/$ownerName/$repoName";
+    echo "\n" . $cmd . "\n";
+
     $cmd = "curl --request POST --user $user:$passwd https://api.bitbucket.org/1.0/repositories/ --data name=$repoName --data scm=git $owner --data is_private=True";
+    echo "\n" . $cmd . "\n";
     echo shell_exec($cmd);
 
     // add remote and push
     $cmd = "git remote add origin ssh://git@bitbucket.org/$ownerName/$repoName.git";
+    echo "\n" . $cmd . "\n";
     echo shell_exec($cmd);
     echo shell_exec('git push -u origin master');
 }
