@@ -20,7 +20,7 @@ define('SF_DEBUG', true);
 require_once (SF_ROOT_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . SF_APP . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php');
 
 define('REPOS_DIR', $argv[1]);
-define('REPO_NAME', $argv[2]);
+define('REPO_NAME', strtolower(trim($argv[2])));
 define('GIT_REPO_PATH', $argv[3]);
 
 include dirname(__FILE__) . '/commons.php';

@@ -19,7 +19,7 @@ require_once (SF_ROOT_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR .
 
 define('REPOS_DIR', $argv[1]);
 define('SVN_URL', $argv[2]);
-define('REPO_NAME', $argv[3]);
+define('REPO_NAME', strtolower(trim($argv[3])));
 
 include dirname(__FILE__) . '/commons.php';
 
