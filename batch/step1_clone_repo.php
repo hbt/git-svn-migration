@@ -51,22 +51,22 @@ function convertSVNtoGit()
     if (file_exists($repoPath))
     {
         echo "\n\ngit repo already exists at " . $repoPath;
+        shell_exec('rm -rf ' . REPO_NAME);
     }
-    else
-    {
-        // checkout svn project into git repo
-        $cmd = implode(" ", array(
-            'git-svn',
-            'clone',
-            '--authors-file',
-            $authorsFile,
-            '--no-metadata',
-            SVN_URL,
-            REPO_NAME
-        ));
 
-        echo shell_exec($cmd);
-    }
+
+    // checkout svn project into git repo
+    $cmd = implode(" ", array(
+        'git-svn',
+        'clone',
+        '--authors-file',
+        $authorsFile,
+        '--no-metadata',
+        SVN_URL,
+        REPO_NAME
+            ));
+
+    echo shell_exec($cmd);
 }
 
 function generateSubmodulesSymlinksFile()
@@ -355,6 +355,7 @@ function pushToRemote()
     chdir($repoPath);
     $cmd = "curl --request DELETE --user $user:$passwd https://api.bitbucket.org/1.0/repositories/$ownerName/$repoName";
     echo "\n" . $cmd . "\n";
+    echo shell_exec($cmd);
 
     $cmd = "curl --request POST --user $user:$passwd https://api.bitbucket.org/1.0/repositories/ --data name=$repoName --data scm=git $owner --data is_private=True";
     echo "\n" . $cmd . "\n";
