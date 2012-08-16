@@ -40,6 +40,8 @@ function convertSymlinks($yaml)
         if(file_exists($p) && is_link($p))
         {
             // remove symbolic link
+            echo shell_exec('git rm -f ' . $p);
+            echo shell_exec('git commit -m "(svn import) -- converts symlinks into regular files"');
             unlink($p);
             chdir($symlink['path']);
 
