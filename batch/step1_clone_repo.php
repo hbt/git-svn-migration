@@ -353,9 +353,13 @@ function pushToRemote()
     // create bitbucket repository
     $repoPath = REPOS_DIR . REPO_NAME;
     chdir($repoPath);
-    $cmd = "curl --request DELETE --user $user:$passwd https://api.bitbucket.org/1.0/repositories/$ownerName/$repoName";
-    echo "\n" . $cmd . "\n";
-    echo shell_exec($cmd);
+
+    if($yaml['delete_before_import'])
+    {
+        $cmd = "curl --request DELETE --user $user:$passwd https://api.bitbucket.org/1.0/repositories/$ownerName/$repoName";
+        echo "\n" . $cmd . "\n";
+        echo shell_exec($cmd);
+    }
 
     $cmd = "curl --request POST --user $user:$passwd https://api.bitbucket.org/1.0/repositories/ --data name=$repoName --data scm=git $owner --data is_private=True";
     echo "\n" . $cmd . "\n";

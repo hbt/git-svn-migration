@@ -1,3 +1,4 @@
 user: 
 passwd: 
-owner: 
+owner:
+delete_before_import: 0
