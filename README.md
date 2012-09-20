@@ -57,16 +57,16 @@ Migrates a subversion repository into a Git repository. Uses git-svn + transform
 
 ## Aftermatch
 
-    * /home/username/repos/ will contain a lot of directories including __tmp_svn directories (svn repositories). This is useful if a mistake was made and you need to run the scripts again.
-    * If the repositories are pushed on the remote host. Feel free to delete the /home/username/repos/ directory
+* /home/username/repos/ will contain a lot of directories including __tmp_svn directories (svn repositories). This is useful if a mistake was made and you need to run the scripts again.
+* If the repositories are pushed on the remote host. Feel free to delete the /home/username/repos/ directory
 
 
 
 ## Silent crashes
 
-    * If it stops mid-migration, review the authors.txt and make sure no authors are missing
+* If it stops mid-migration, review the authors.txt and make sure no authors are missing
 
 
 ## Side Notes
 
-    * Designed to be ran once. If you run it again, delete the remote repository
+* Designed to be ran once. If you run it again, delete the remote repository
