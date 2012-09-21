@@ -22,7 +22,6 @@ Migrates a subversion repository into a Git repository. Uses git-svn + transform
 
 * execute step1 
 `php step1_clone_repo.php repository_dump_directory/ authors_filename svn_url repo_name`
-### Note: yes, keep the trailing `/` when executing commands
     
     * imports the svn repository into git (uses the authors.txt file)
     * generates a list of svn externals into a file -- to be converted into git submodules or symbolic links
@@ -70,3 +69,4 @@ Migrates a subversion repository into a Git repository. Uses git-svn + transform
 ## Side Notes
 
 * Designed to be ran once. If you run it again, delete the remote repository
+* The /home/username/repos directory contains cached information about the repository. Delete it if you fail to run the migration and want to try it again
