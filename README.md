@@ -19,9 +19,10 @@ Migrates a subversion repository into a Git repository. Uses git-svn + transform
 * define authors in batch/authors.txt
 
     * use `svn log --xml | grep author | sort -u | perl -pe 's/.>(.?)<./$1 = /'` to list authors from your SVN repository
+    * define authors in batch/authors.txt
 
 * execute step1 
-`php step1_clone_repo.php repository_dump_directory/ authors_filename svn_url repo_name`
+`php step1_clone_repo.php repository_dump_directory/ svn_url repo_name`
     
     * imports the svn repository into git (uses the authors.txt file)
     * generates a list of svn externals into a file -- to be converted into git submodules or symbolic links

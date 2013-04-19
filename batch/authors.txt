@@ -1,4 +1,5 @@
 htanfous = Hassen Ben Tanfous <htanfous@sylsft.com>
+hassen = hbt <hassenbentanfous@gmail.com>
 jhanley = Jason Hanley <jhanley@sylsft.com>
 ypogue = Yusef Pogue <ypogue@sylsft.com>
 amemon = Ahmed Memom <amemon@sylsft.com>
